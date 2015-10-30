@@ -9,7 +9,7 @@
     <div class="md-dialog-content">
       <md-input-container flex ng-repeat="inp in dialogOpt.inputDet">
           <label ng-show="inputRequires(inp.type)">{{inp.name}}</label>
-            <input ng-if="inp.type === 'date'" ng-model="dialogOpt.models[inp.name]" type="date">
+            <input ng-if="inp.type === 'date'" ng-model="dialogOpt.models[inp.name]" k-format="'yyyy-MM-dd'" kendo-date-picker>
             <input ng-if="inp.type === 'text'" ng-model="dialogOpt.models[inp.name]" type="text">
             <input ng-if="inp.type === 'number'" ng-model="dialogOpt.models[inp.name]" type="number">
             <md-checkbox ng-if="inp.type === 'checkbox'" ng-model="dialogOpt.models[inp.name]">{{inp.name}}</md-checkbox>

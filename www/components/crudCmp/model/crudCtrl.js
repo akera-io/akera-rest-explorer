@@ -102,7 +102,7 @@ app.controller('crudCtrl', ['$scope', '$http', '$mdDialog', '$mdToast', function
 	function showError(msg) {
 		var err;
 		if (msg.data.message) {
-			err = msg.data.message;
+			err = 'Message : ' + msg.data.message + '</br> Code : ' + msg.data.code;
 		} else {
 			err = JSON.stringify(msg);
 		}
@@ -120,8 +120,8 @@ app.controller('crudCtrl', ['$scope', '$http', '$mdDialog', '$mdToast', function
 	//variables
 	$scope.explorerOpt = {
 		limit: 5,
-		page: 0,
-		total: null,
+		page: 1,
+		total: 0,
 		selected: [],
 		data: [],
 		types: {},
@@ -155,9 +155,11 @@ app.controller('crudCtrl', ['$scope', '$http', '$mdDialog', '$mdToast', function
 	};
 
 	$scope.loadExplorer = function() {
+		$scope.explorerOpt.page = 1;
 		$scope.explorerOpt.selected = [];
-		getTableCount();
-		getTableData();
+		getTableCount(function(){
+			getTableData();
+		});
 	};
 
 	$scope.onPaginationChange = function() {
@@ -194,9 +196,10 @@ app.controller('crudCtrl', ['$scope', '$http', '$mdDialog', '$mdToast', function
 		return type;
 	}
 
-	function getTableCount() {
+	function getTableCount(callback) {
 		$http.get(basepath + '/crud/' + $scope.selectedDbs + '/' + $scope.selectedTbl + '/count').then(function(count) {
 			$scope.explorerOpt.total = count.data.num;
+			callback();
 		}, function(err) {
 			showError(err);
 		});
@@ -205,7 +208,7 @@ app.controller('crudCtrl', ['$scope', '$http', '$mdDialog', '$mdToast', function
 	function getTableData() {
 		var filter = {
 			limit: $scope.explorerOpt.limit,
-			offset: $scope.explorerOpt.page === 1 ? 0 : $scope.explorerOpt.limit * $scope.explorerOpt.page
+			offset: $scope.explorerOpt.page === 1 ? 0 : $scope.explorerOpt.limit * $scope.explorerOpt.page - $scope.explorerOpt.page
 		};
 		var query = '/?filter=' + JSON.stringify(filter);
 		$http.get(basepath + '/crud/' + $scope.selectedDbs + '/' + $scope.selectedTbl + query).then(function(tableData) {
@@ -294,7 +297,6 @@ app.controller('crudCtrl', ['$scope', '$http', '$mdDialog', '$mdToast', function
 	function sendUpdateRequest(filter, data){
 		$http.post(basepath + '/crud/' + $scope.selectedDbs + '/' + $scope.selectedTbl + '/update?filter=' + JSON.stringify(filter), data)
 		.then(function(rsp){
-			console.log(rsp);
 			updCount+=1;
 			updateFinish();
 		}, function(err){

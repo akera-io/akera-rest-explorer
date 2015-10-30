@@ -90,9 +90,9 @@
               <td><md-checkbox ng-click="selectRow(row)"></md-checkbox></td>
               <td ng-repeat="(key,value) in row" ng-if="evaluateState(row)">
                   <label ng-if="key === 'rowid'" type="text">{{value}}</label>
-                  <input ng-if="explorerOpt.types[key] === 'date'" ng-model="row[key]" type="date">
-                  <input ng-if="explorerOpt.types[key] === 'text'" ng-model="row[key]" type="text">
-                  <input ng-if="explorerOpt.types[key] === 'number'" ng-model="row[key]" type="number">
+                  <input kendo-date-picker ng-if="explorerOpt.types[key] === 'date'" k-format="'yyyy-MM-dd'" ng-model="row[key]">
+                  <input class="k-textbox" ng-if="explorerOpt.types[key] === 'text'" ng-model="row[key]" type="text">
+                  <input class="k-textbox" ng-if="explorerOpt.types[key] === 'number'" ng-model="row[key]" type="number">
                   <md-checkbox ng-if="explorerOpt.types[key] === 'checkbox'" ng-model="row[key]"></md-checkbox>
               </td>
               <td ng-repeat="(key, value) in row" ng-if="!evaluateState(row)">

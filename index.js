@@ -1,1 +1,1 @@
-module.exports = require('./lib/akera-rest-file.js');
+module.exports = require('./lib/akera-rest-explorer.js');

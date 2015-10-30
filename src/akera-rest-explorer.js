@@ -16,9 +16,16 @@ AkeraExplorer.prototype.init = function(brokers, route) {
     var app = this.akeraWebInstance.app;
 
     route = (route === '/' ? '/explorer' : route) || '/explorer';
-
     if (!brokers || brokers.length === 0) {
         app.use(route + '/:broker', express.static(www_path));
+        app.get(route + '/:broker/', function(req, res) {
+            var brkName = req.params.broker;
+            var templateFn = require('jade').compileFile(require.resolve('../www/index.jade'));
+            res.status(200).send(templateFn({
+                broker: brkName
+            }));
+
+        });
         this.log('info', 'Akera REST Explorer enabled for all brokers.');
     } else {
         brokers.forEach(function(brokerName) {

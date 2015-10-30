@@ -163,10 +163,11 @@ app.controller('crudCtrl', ['$scope', '$http', '$mdDialog', '$mdToast', function
 	};
 
 	$scope.onPaginationChange = function() {
+		$scope.explorerOpt.selected = [];
 		getTableData();
 	};
 
-	function getTableTypes(current) {
+	function getTableTypes() {
 		$scope.explorerOpt.types = {};
 		for (var f in $scope.tblFields) {
 			var fld = $scope.tblFields[f];

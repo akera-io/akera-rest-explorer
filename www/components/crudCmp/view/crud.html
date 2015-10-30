@@ -1,0 +1,114 @@
+<div layout="row" flex="100">
+	<div layout="column" flex="20" id="treeView">
+		<md-content layout="column" flex class="md-padding">
+		<div ui-tree data-drag-enabled="false">
+      <label id="treeViewTitle"><i class="fa fa-database"></i>Databases</label></br>
+			<ol ui-tree-nodes="" ng-model="dbs">
+				<li ng-repeat="db in dbs" ui-tree-node>
+					<div ui-tree-handle ng-click="loadTables(this)">
+						<label><i ng-class="collapsed ? 'fa fa-minus': 'fa fa-plus'"></i>  {{db.title}}</label>
+					</div>
+					<ol ui-tree-nodes="" ng-model="db.tables" ng-show="collapsed">
+						<li ng-repeat="tbl in db.tables" ui-tree-node>
+							<div ui-tree-handle ng-click="loadFields(this)">
+								<label><i class="fa fa-table"></i>  {{tbl.title}}</label>
+							</div>
+						</li>
+					</ol>
+				</li>
+			</ol>
+		</div>
+		</md-content>
+	</div>
+	<div layout="column" flex id="sideContent">
+		<div ng-cloak ng-show="selectedTbl">
+  <md-content id="sContContainer">
+    <md-tabs md-selected="selectedTab" id="sContTabs" md-border-bottom>
+      <md-tab label="Properties" >
+        <md-content class="md-padding">
+          <md-data-table-toolbar ng-model="selectedTbl">
+ 			<h2 class="md-title">{{selectedTbl}}</h2>
+		  </md-data-table-toolbar>
+
+		<md-data-table-container>
+ 		 <table md-data-table md-progress="deferred">
+    		<thead>
+      			<tr>
+              <th></th>
+       	 			<th name="{{name}}" ng-repeat="name in fieldNames"></th>
+      			</tr>
+    		</thead>
+    		<tbody>
+      			<tr md-auto-select ng-repeat="field in tblFields">
+              <td><i ng-show="indexes[field.name].primary" title="Primary Key" class="fa fa-key primaryKey"></i><i ng-show="indexes[field.name].unique" title="Unique Key" class="fa fa-key foreignKey"></i>
+              </td>
+        			<td>{{field.name}}</td>
+        			<td>{{field.type}}</td>
+        			<td>{{field.label}}</td>
+        			<td>{{field.mandatory}}</td>
+        			<td>{{field.initial}}</td>
+        			<td>{{field.extent}}</td>
+        			<td>{{field.format}}</td>
+        			<td>{{field.help}}</td>
+        			<td>{{field.view}}</td>
+        			<td>{{field.decimals}}</td>
+        			<td>{{field.description}}</td>
+      			</tr>
+    		</tbody>
+  		  </table>
+		</md-data-table-container>
+        </md-content>
+      </md-tab>
+      <md-tab label="Explorer" ng-click="loadExplorer()">
+        <md-content class="md-padding">
+             <md-data-table-toolbar ng-if="explorerOpt.selected.length === 0" ng-model="selectedTbl">
+                <h2 class="md-title">{{selectedTbl}}</h2>
+                <span flex></span>
+                <md-button class="md-fab md-mini" ng-click="insertAction()">
+                  <i class="fa fa-plus"></i>
+                </md-button>
+             </md-data-table-toolbar>
+              <md-data-table-toolbar class="alternateToolbar" ng-if="explorerOpt.selected.length >= 1" ng-model="selectedTbl">
+                <h2 class="md-title">{{explorerOpt.selected.length}} item(s) selected</h2>
+                <md-button class="md-icon-button" style="width:10px" ng-click="deleteAction()">
+                  <i class="fa fa-trash"></i>
+                </md-button>
+                <md-button class="md-icon-button" style="width:15px" ng-click="updateAction()">
+                  <i class="fa fa-floppy-o"></i>
+                </md-button>
+             </md-data-table-toolbar>
+        <md-data-table-container>
+          <table md-data-table md-progress="deferred">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th name="{{key}}" ng-repeat="(key,value) in explorerOpt.theaders"></th>
+                </tr>
+              </thead>
+              <tbody>
+            <tr md-auto-select ng-repeat="row in explorerOpt.data">
+              <td><md-checkbox ng-click="selectRow(row)"></md-checkbox></td>
+              <td ng-repeat="(key,value) in row" ng-if="evaluateState(row)">
+                  <label ng-if="key === 'rowid'" type="text">{{value}}</label>
+                  <input ng-if="explorerOpt.types[key] === 'date'" ng-model="row[key]" type="date">
+                  <input ng-if="explorerOpt.types[key] === 'text'" ng-model="row[key]" type="text">
+                  <input ng-if="explorerOpt.types[key] === 'number'" ng-model="row[key]" type="number">
+                  <md-checkbox ng-if="explorerOpt.types[key] === 'checkbox'" ng-model="row[key]"></md-checkbox>
+              </td>
+              <td ng-repeat="(key, value) in row" ng-if="!evaluateState(row)">
+                {{value}}
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </md-data-table-container>
+        <md-data-table-pagination md-limit="explorerOpt.limit" md-page="explorerOpt.page" md-total="{{explorerOpt.total}}" md-trigger="onPaginationChange"></md-data-table-pagination>
+        </md-content>
+      </md-tab>
+    </md-tabs>
+  </md-content>
+</div>
+<div ng-show="!selectedTbl">No table selected</div>
+	</div>
+</div>
+	

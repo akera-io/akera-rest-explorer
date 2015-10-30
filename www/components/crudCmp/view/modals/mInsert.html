@@ -1,0 +1,29 @@
+<md-dialog aria-label="Insert" ng-cloak>
+  <form>
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Insert</h2>
+    </div>
+  </md-toolbar>
+  <md-dialog-content style="max-width:800px;width:600px;max-height:810px; ">
+    <div class="md-dialog-content">
+      <md-input-container flex ng-repeat="inp in dialogOpt.inputDet">
+          <label ng-show="inputRequires(inp.type)">{{inp.name}}</label>
+            <input ng-if="inp.type === 'date'" ng-model="dialogOpt.models[inp.name]" type="date">
+            <input ng-if="inp.type === 'text'" ng-model="dialogOpt.models[inp.name]" type="text">
+            <input ng-if="inp.type === 'number'" ng-model="dialogOpt.models[inp.name]" type="number">
+            <md-checkbox ng-if="inp.type === 'checkbox'" ng-model="dialogOpt.models[inp.name]">{{inp.name}}</md-checkbox>
+      </md-input-container>
+    </div>
+  </md-dialog-content>
+  <div class="md-actions" layout="row">
+    <span flex></span>
+    <md-button ng-click="hide()" >
+     Cancel
+    </md-button>
+    <md-button ng-click="insert()" style="margin-right:20px;" >
+      Insert
+    </md-button>
+  </div>
+  </form>
+</md-dialog>

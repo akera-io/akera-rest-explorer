@@ -1,0 +1,19 @@
+{
+  "name": "akera-rest",
+  "description": "",
+  "main": "",
+  "authors": [
+    "Liviu Mihaianu"
+  ],
+  "license": "MIT",
+  "moduleType": [],
+  "homepage": "",
+  "private": true,
+  "dependencies": {
+    "jquery": "~2.1.4",
+    "angular": "angularjs#~1.4.7",
+    "bootstrap": "~3.3.5",
+    "angular-material-data-table": "~0.8.14",
+    "font-awesome": "fontawesome#~4.4.0"
+  }
+}

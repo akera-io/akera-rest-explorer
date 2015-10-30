@@ -10,10 +10,10 @@ function AkeraExplorer (akeraWebInstance) {
     else throw new Error('Invalid akera web application instance');
 }
 
-AkeraExplorer.prototype.init = function(route, brokerName) {
+AkeraExplorer.prototype.init = function(brokers, route) {
    var app = this.akeraWebInstance.app;
 
-    route = (route === '/' ? '/rest' : route) || '/rest';
+    route = (route === '/' ? '/explorer' : route) || '/explorer';
 
     if (!brokers || brokers.length === 0) {
         app.use(route + '/:broker', new file_router(null, this.akeraWebInstance));

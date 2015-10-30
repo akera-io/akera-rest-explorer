@@ -1,4 +1,4 @@
-var app = angular.module('akeraRest',['ui.router','ui.tree','ngMaterial','md.data.table']);
+var app = angular.module('akeraRest',['ui.router','ui.tree','ngMaterial','md.data.table','kendo.directives']);
 app.config(function($stateProvider, $locationProvider){
 	$stateProvider
 		.state('crud',{

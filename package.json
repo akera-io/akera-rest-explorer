@@ -16,6 +16,7 @@
   "main": "index.js",
   "dependencies": {
     "express": "latest",
+    "jade": "latest",
     "bower": "latest"
   },
   "scripts": {

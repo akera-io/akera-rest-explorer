@@ -14,6 +14,7 @@ function AkeraExplorer(akeraWebInstance) {
 
 AkeraExplorer.prototype.init = function(brokerName, route) {
     var app = this.akeraWebInstance.app;
+    var self = this;
 
     route = (route === '/' ? '/explorer' : route) || '/explorer';
     app.use(route + (brokerName ? '/' + brokerName : '/:broker'), express.static(www_path));
@@ -21,7 +22,8 @@ AkeraExplorer.prototype.init = function(brokerName, route) {
         var brkName = req.params.broker;
         var templateFn = require('jade').compileFile(require.resolve('../www/index.jade'));
         res.status(200).send(templateFn({
-            broker: brkName
+            broker: brkName,
+            restRoute: self.akeraWebInstance.akeraServices.restRoute
         }));
 
     });

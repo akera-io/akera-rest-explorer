@@ -1,7 +1,13 @@
 var app = angular.module('akeraRest');
 
 app.controller('insertCtrl', ['$scope', '$mdDialog', '$http', '$mdToast', function($scope, $mdDialog, $http, $mdToast) {
-	var basepath = '/rest/' + broker;
+	var endsWith = restRoute.charAt(restRoute.length - 1);
+	var rRoute;
+	rRoute = restRoute;
+	if(endsWith !== '/')
+		rRoute = restRoute + '/';
+	var basepath = rRoute || '/rest/';
+	basepath += broker;
 
 	$scope.dialogOpt = {
 		inputDet: [],
@@ -38,7 +44,6 @@ app.controller('insertCtrl', ['$scope', '$mdDialog', '$http', '$mdToast', functi
 	}
 
 	function showError(msg) {
-		console.log(msg);
 		var err;
 		if (msg.data.message)
 			err = msg.data.message;
@@ -72,7 +77,7 @@ app.controller('insertCtrl', ['$scope', '$mdDialog', '$http', '$mdToast', functi
 			showError(err);
 		});
 	};
-	
+
 	$scope.inputRequires = function(type) {
 		if (type === 'checkbox')
 			return false;

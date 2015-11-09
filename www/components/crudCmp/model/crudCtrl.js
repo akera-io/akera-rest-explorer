@@ -107,8 +107,8 @@ app.controller('crudCtrl', ['$scope', '$http', '$mdDialog', '$mdToast', function
 
 	function showError(msg) {
 		var err;
-		if (msg.data.message) {
-			err = 'Message : ' + msg.data.message + '</br> Code : ' + msg.data.code;
+		if (msg.data) {
+			err = 'Message : ' + (msg.data.message || msg.data.toString()) + '</br> Code : ' + msg.data.code;
 		} else {
 			err = JSON.stringify(msg);
 		}

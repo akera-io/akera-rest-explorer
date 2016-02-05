@@ -13,11 +13,10 @@ app.controller('crudCtrl', ['$scope', '$http', '$mdDialog', '$mdToast', function
 	var endsWith = restRoute.charAt(restRoute.length - 1);
 	var rRoute;
 	rRoute = restRoute;
-	if(endsWith !== '/')
-		rRoute = restRoute + '/';
-	var basepath = rRoute || '/rest/';
-	basepath += broker;
-
+	if(endsWith === '/')
+		rRoute = restRoute.substrint(0, restRoute.length - 1);
+	var basepath = '..' + rRoute;
+	
 	function loadDatabases() {
 		$http.get(basepath + '/crud/meta').then(function(databases) {
 			var dbArr = [];

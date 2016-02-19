@@ -10,13 +10,15 @@
   "homepage": "",
   "private": true,
   "dependencies": {
-    "jquery": "~2.1.4",
-    "angular": "angularjs#~1.4.7",
-    "bootstrap": "~3.3.5",
-    "angular-material-data-table": "~0.8.14",
-    "font-awesome": "fontawesome#~4.4.0",
+    "angular": "~1.5.0",
+    "angular-animate": "latest",
+    "angular-aria": "latest",
     "angular-ui-tree": "latest",
     "angular-ui-router": "latest",
-    "angular-material": "latest"
+    "angular-material": "latest",
+    "angular-material-data-table": "~0.8.14",
+    "bootstrap": "~3.3.5",
+    "font-awesome": "fontawesome#~4.4.0",
+    "jquery": "~2.1.4"
   }
 }

@@ -16,10 +16,10 @@ html(ng-app='akeraRest')
   body(ng-controller='mainCtrl')
     md-toolbar(layout='row')
       .md-toolbar-tools
-        md-button.md-icon-button(ng-click="toggleSidenav('left')", hide-gt-sm='')
-          md-icon(aria-label='Menu', md-svg-icon='https://s3-us-west-2.amazonaws.com/s.cdpn.io/68133/menu.svg')
+        md-button.md-icon-button(ng-click="toggleSidenav()")
+          md-icon(aria-label='Menu', md-svg-icon='img/menu.svg')
         h1 Akera RestExplorer [#{broker}]
-    div(ui-view='',id='mainBody')
+    ui-view(id='mainBody', layout='row')
     script(type='text/javascript', src='resources/jquery/dist/jquery.js')
     script(type='text/javascript', src='resources/angular/angular.js')
     script(type='text/javascript', src='resources/angular-animate/angular-animate.min.js')

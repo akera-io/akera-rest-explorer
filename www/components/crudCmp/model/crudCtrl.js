@@ -1,352 +1,345 @@
 var app = angular.module('akeraRest');
 
-app.controller('crudCtrl', ['$scope', '$http', '$mdDialog', '$mdToast', function($scope, $http, $mdDialog, $mdToast) {
-	$scope.dbs = [];
-	$scope.tblFields = {};
-	$scope.selectedTbl = null;
-	$scope.selectedTab = 0;
-	$scope.fieldNames = ['Name', 'Type', 'Label', 'Mandatory', 'Initial', 'Extent', 'Format', 'Help', 'View', 'Decimals', 'Description'];
-	$scope.selectedDbs = null;
-	$scope.indexes = {};
-	var tblFields = [];
+app
+    .controller(
+        'crudCtrl',
+        [
+            '$scope',
+            '$http',
+            '$mdDialog',
+            '$mdToast',
+            '$mdMedia',
+            function($scope, $http, $mdDialog, $mdToast, $mdMedia) {
+              $scope.dbs = [];
+              $scope.tblFields = {};
+              $scope.selectedTbl = null;
+              $scope.selectedTab = 0;
+              $scope.fieldNames = [ 'Name', 'Type', 'Label', 'Mandatory',
+                  'Initial', 'Extent', 'Format', 'Help', 'View', 'Decimals',
+                  'Description' ];
+              $scope.selectedDbs = null;
+              $scope.indexFields = {};
+              var tblFields = [];
 
-	var endsWith = restRoute.charAt(restRoute.length - 1);
-	var rRoute;
-	rRoute = restRoute;
-	if(endsWith === '/')
-		rRoute = restRoute.substrint(0, restRoute.length - 1);
-	var basepath = '..' + rRoute;
-	
-	function loadDatabases() {
-		$http.get(basepath + '/crud/meta').then(function(databases) {
-			var dbArr = [];
-			for (var key in databases.data) {
-				dbArr.push({
-					title: databases.data[key],
-					tables: []
-				});
-			}
-			$scope.dbs = dbArr;
-		}, function(err) {
-			showError(err);
-		});
-	}
+              $scope.isPKField = function(fieldName) {
+                return $scope.indexFields[fieldName]
+                    && $scope.indexFields[fieldName].primary === true;
+              };
 
-	loadDatabases();
+              $scope.isUniqueField = function(fieldName) {
+                return $scope.indexFields[fieldName]
+                    && !$scope.indexFields[fieldName].primary
+                    && $scope.indexFields[fieldName].unique === true;
+              };
 
-	$scope.loadTables = function(node) {
-		var db = node.$modelValue;
-		$scope.selectedTab = 0;
-		if (db.tables.length === 0) {
-			loadTables(db, node);
-		} else {
-			node.toggle();
-		}
-	};
+              function loadDatabases() {
+                $http.get(restRoute + 'meta').then(function(databases) {
+                  var dbArr = [];
+                  for ( var key in databases.data) {
+                    dbArr.push({
+                      title : databases.data[key],
+                      tables : []
+                    });
+                  }
+                  $scope.dbs = dbArr;
+                }, function(err) {
+                  showError(err);
+                });
+              }
 
-	function loadTables(db, node) {
-		$http.get(basepath + '/crud/meta/' + db.title).then(function(tables) {
-			var tblArr = [];
-			for (var i = 0; i < tables.data.length; i++) {
-				tblArr.push({
-					title: tables.data[i]
-				});
-			}
-			db.tables = tblArr;
-			$scope.selectedDbs = db.title;
-			node.toggle();
-		}, function(err) {
-			showError(err);
-		});
-	}
+              loadDatabases();
 
-	$scope.loadFields = function(node) {
-		var tbl = node.$modelValue;
-		$scope.selectedTab = 0;
-		loadFields(tbl.title);
-	};
+              $scope.loadTables = function(node) {
+                var db = node.$modelValue;
+                $scope.selectedTab = 0;
+                if (db.tables.length === 0) {
+                  loadTables(db, node);
+                } else {
+                  node.toggle();
+                }
+              };
 
-	function loadFields(tblName) {
-		for (var i = 0; i < tblFields.length; i++) {
-			var tFld = tblFields[i];
-			if (tFld.title === tblName) {
-				$scope.tblFields = tFld.fields;
-				$scope.selectedTbl = tblName;
-				return;
-			}
-		}
-		$http.get(basepath + '/crud/meta/' + $scope.selectedDbs + '/' + tblName).then(function(fields) {
-			getTableIdx(tblName, function() {
-				var tblFld = {
-					title: tblName,
-					fields: fields.data
-				};
-				$scope.selectedTbl = tblName;
-				$scope.tblFields = fields.data;
-				tblFields.push(tblFld);
-			});
-		}, function(err) {
-			showError(err);
-		});
-	}
+              function loadTables(db, node) {
+                $http.get(restRoute + 'meta/' + db.title).then(
+                    function(tables) {
+                      var tblArr = [];
+                      for (var i = 0; i < tables.data.length; i++) {
+                        tblArr.push({
+                          title : tables.data[i]
+                        });
+                      }
+                      db.tables = tblArr;
+                      $scope.selectedDbs = db.title;
+                      node.toggle();
+                    }, function(err) {
+                      showError(err);
+                    });
+              }
 
-	function getTableIdx(tblName, callback) {
-		$http.get(basepath + '/crud/meta/' + $scope.selectedDbs + '/' + tblName + '/indexes').then(function(indexes) {
-			for (var key in indexes.data) {
-				$scope.indexes[indexes.data[key].name] = {
-					primary: indexes.data[key].primary,
-					unique: indexes.data[key].unique
-				};
-			}
-			callback();
-		}, function(err) {
-			showError(err);
-		});
-	}
+              $scope.loadFields = function(node) {
+                var tbl = node.$modelValue;
+                $scope.selectedTab = 0;
+                loadFields(tbl.title);
+              };
 
-	function showError(msg) {
-		var err;
-		if (msg.data) {
-			err = 'Message : ' + (msg.data.message || msg.data.toString()) + '</br> Code : ' + msg.data.code;
-		} else {
-			err = JSON.stringify(msg);
-		}
-		$mdDialog.show(
-			$mdDialog.alert()
-			.clickOutsideToClose(true)
-			.title('Error')
-			.content(err)
-			.ariaLabel('Error')
-			.ok('Done')
-		);
-	}
-	//Explorer Tab
+              function loadFields(tblName) {
+                for (var i = 0; i < tblFields.length; i++) {
+                  var tFld = tblFields[i];
+                  if (tFld.title === tblName) {
+                    $scope.tblFields = tFld.fields;
+                    $scope.selectedTbl = tblName;
+                    return;
+                  }
+                }
+                $http.get(
+                    restRoute + 'meta/' + $scope.selectedDbs + '/' + tblName)
+                    .then(function(fields) {
+                      getTableIdx(tblName, function() {
+                        var tblFld = {
+                          title : tblName,
+                          fields : fields.data
+                        };
+                        $scope.selectedTbl = tblName;
+                        $scope.tblFields = fields.data;
+                        tblFields.push(tblFld);
+                      });
+                    }, function(err) {
+                      showError(err);
+                    });
+              }
 
-	//variables
-	$scope.explorerOpt = {
-		limit: 5,
-		page: 1,
-		total: 0,
-		selected: [],
-		data: [],
-		types: {},
-		theaders: []
-	};
+              function getTableIdx(tblName, callback) {
+                $http
+                    .get(
+                        restRoute + 'meta/' + $scope.selectedDbs + '/'
+                            + tblName + '/indexes')
+                    .then(
+                        function(indexes) {
+                          for ( var key in indexes.data) {
+                            var idx = indexes.data[key];
 
-	$scope.selectRow = function(row) {
-		row = $.extend(true,{},row);
-		if ($scope.explorerOpt.selected.length === 0) {
-			$scope.explorerOpt.selected.push(row);
-		} else {
-			var exists = false;
-			for (var key in $scope.explorerOpt.selected) {
-				if (row.rowid === $scope.explorerOpt.selected[key].rowid) {
-					$scope.explorerOpt.selected.splice(key, 1);
-					exists = true;
-				}
-			}
-			if (!exists) $scope.explorerOpt.selected.push(row);
-		}
-	};
+                            for ( var f in idx.fields) {
+                              var fld = idx.fields[f].name;
 
-	$scope.evaluateState = function(row) {
-		var ev = false;
-		for (var k in $scope.explorerOpt.selected) {
-			if ($scope.explorerOpt.selected[k].rowid === row.rowid) {
-				ev = true;
-			}
-		}
-		return ev;
-	};
+                              $scope.indexFields[fld] = $scope.indexFields[fld]
+                                  || {};
 
-	$scope.loadExplorer = function() {
-		$scope.explorerOpt.page = 1;
-		$scope.explorerOpt.selected = [];
-		getTableCount(function(){
-			getTableData();
-		});
-	};
+                              $scope.indexFields[fld].primary = $scope.indexFields[fld].primary
+                                  || idx.primary;
+                              $scope.indexFields[fld].unique = $scope.indexFields[fld].unique
+                                  || idx.unique;
 
-	$scope.onPaginationChange = function() {
-		$scope.explorerOpt.selected = [];
-		getTableData();
-	};
+                              if (idx.primary && idx.unique)
+                                $scope.indexFields[fld].pos = idx.fields[f].fld_pos;
 
-	function getTableTypes() {
-		$scope.explorerOpt.types = {};
-		for (var f in $scope.tblFields) {
-			var fld = $scope.tblFields[f];
-			if (fld.name !== 'rowid') {
-				$scope.explorerOpt.types[fld.name] = typeToHtml(fld.type);
-			}
-		}
-	}
+                            }
+                          }
+                          callback();
+                        }, function(err) {
+                          showError(err);
+                        });
+              }
 
-	function typeToHtml(type) {
-		switch (type) {
-			case ('int64'):
-			case ('integer'):
-			case ('decimal'):
-				type = 'number';
-				break;
-			case ('logical'):
-				type = 'checkbox';
-				break;
-			case ('date'):
-				type = 'date';
-				break;
-			default:
-				type = 'text';
-				break;
-		}
-		return type;
-	}
+              function showError(msg) {
+                var err;
+                if (msg.data) {
+                  err = 'Message : '
+                      + (msg.data.message || msg.data.toString())
+                      + '</br> Code : ' + msg.data.code;
+                } else {
+                  err = JSON.stringify(msg);
+                }
+                $mdDialog.show($mdDialog.alert().clickOutsideToClose(true)
+                    .title('Error').content(err).ariaLabel('Error').ok('Done'));
+              }
+              // Explorer Tab
 
-	function getTableCount(callback) {
-		$http.get(basepath + '/crud/' + $scope.selectedDbs + '/' + $scope.selectedTbl + '/count').then(function(count) {
-			$scope.explorerOpt.total = count.data.num;
-			callback();
-		}, function(err) {
-			showError(err);
-		});
-	}
+              // variables
+              $scope.explorerOpt = {
+                limit : $mdMedia('(min-width: 960px)') ? 10 : 5,
+                page : 1,
+                total : 0,
+                selected : [],
+                data : [],
+                types : {},
+                header : []
+              };
 
-	function getTableData() {
-		var filter = {
-			limit: $scope.explorerOpt.limit,
-			offset: $scope.explorerOpt.page === 1 ? 0 : $scope.explorerOpt.limit * $scope.explorerOpt.page - $scope.explorerOpt.page
-		};
-		var query = '/?filter=' + JSON.stringify(filter);
-		$http.get(basepath + '/crud/' + $scope.selectedDbs + '/' + $scope.selectedTbl + query).then(function(tableData) {
-			$scope.explorerOpt.data = tableData.data;
-			$scope.explorerOpt.theaders = tableData.data[0];
-			getTableTypes();
-		}, function(err) {
-			showError(err);
-		});
-	}
+              $scope.rowChanged = function() {
+                if ($scope.explorerOpt.selected)
+                  $scope.explorerOpt.selected.__changed = true;
+              }
 
-	$scope.insertAction = function() {
-		var s = $scope.$new();
-		s.tblFields = $scope.tblFields;
-		s.indexes = $scope.indexes;
-		s.selectedDbs = $scope.selectedDbs;
-		s.selectedTbl = $scope.selectedTbl;
-		$mdDialog.show({
-			controller: 'insertCtrl',
-			scope: s,
-			templateUrl: 'components/crudCmp/view/modals/mInsert.html'
-		}).then(function() {
-			$scope.loadExplorer();
-		}, function() {});
-	};
+              $scope.selectRow = function(row) {
+                if (!$scope.explorerOpt.selected
+                    || $scope.explorerOpt.selected.rowid !== row.rowid)
+                  $scope.explorerOpt.selected = $.extend(true, {}, row);
 
-	function getDeleteFilter() {
-		var filter = {
-			where: {
-				or: []
-			}
-		};
-		for (var key in $scope.explorerOpt.selected) {
-			var sel = $scope.explorerOpt.selected[key];
-			for (var k in sel) {
-				var and = {
-					'and': []
-				};
-				if (k !== 'rowid' && k !== '$$hashKey') {
-					var obj = {};
-					obj[k] = sel[k];
-					and.and.push(obj);
-				}
-				if (and.and.length !== 0)
-					filter.where.or.push(and);
-			}
-		}
-		return filter;
-	}
+                if ($scope.explorerOpt.row)
+                  delete $scope.explorerOpt.row.__selected;
 
-	function getUpdateFilter(sel) {
-		var filter = {
-			where: {
-				and: []
-			}
-		};
-		for (var k in sel) {
-			if (k !== 'rowid' && k !== '$$hashKey') {
-				var obj = {};
-				obj[k] = sel[k];
-				filter.where.and.push(obj);
-			}
-		}
+                row.__selected = true;
+                $scope.explorerOpt.row = row;
+              };
 
-		return filter;
-	}
+              $scope.evaluateState = function(row) {
+                return $scope.explorerOpt.selected && row
+                    && $scope.explorerOpt.selected.rowid === row.rowid;
+              };
 
-	var updCount = 0;
-	$scope.updateAction = function() {
-		updCount = 0;
-		for (var key in $scope.explorerOpt.selected) {
-			var filter = getUpdateFilter($scope.explorerOpt.selected[key]);
-			var data = {};
-			for (var i in $scope.explorerOpt.data) {
-				if ($scope.explorerOpt.data[i].rowid === $scope.explorerOpt.selected[key].rowid) {
-					for (var k in $scope.explorerOpt.data[i]) {
-						if (k !== 'rowid' && k !== '$$hashKey')
-							data[k] = $scope.explorerOpt.data[i][k];
-					}
-				}
-			}
-			sendUpdateRequest(filter, data);
-		}
-	};
+              $scope.loadExplorer = function() {
+                $scope.explorerOpt.page = $scope.explorerOpt.page || 1;
+                $scope.explorerOpt.selected = null;
+                getTableCount(function() {
+                  getTableData();
+                });
+              };
 
-	function sendUpdateRequest(filter, data){
-		$http.post(basepath + '/crud/' + $scope.selectedDbs + '/' + $scope.selectedTbl + '/update?filter=' + JSON.stringify(filter), data)
-		.then(function(rsp){
-			updCount+=1;
-			updateFinish();
-		}, function(err){
-			showError(err);
-		});
-	}
+              $scope.onPaginationChange = function() {
+                $scope.explorerOpt.selected = null;
+                getTableData();
+              };
 
-	function updateFinish(){
-		if(updCount === $scope.explorerOpt.selected.length){
-			showToast('Succesfully updated ' + updCount + ' rows');
-			$scope.loadExplorer();
-		}
-	}
+              function getTableTypes() {
+                $scope.explorerOpt.types = {};
+                for ( var f in $scope.tblFields) {
+                  var fld = $scope.tblFields[f];
+                  if (fld.name !== 'rowid') {
+                    $scope.explorerOpt.types[fld.name] = typeToHtml(fld.type);
+                  }
+                }
+              }
 
-	$scope.deleteAction = function() {
-		var confirm = $mdDialog.confirm()
-			.title('Delete')
-			.content('Are you sure you want to delete these ' + $scope.explorerOpt.selected.length + ' items')
-			.ariaLabel('Delete')
-			.ok('Yes')
-			.cancel('No');
-		$mdDialog.show(confirm).then(function() {
-			var filter = getDeleteFilter();
-			$http.delete(basepath + '/crud/' + $scope.selectedDbs + '/' + $scope.selectedTbl + '/?filter=' + JSON.stringify(filter))
-				.then(function(rsp) {
-					$scope.loadExplorer();
-					if (rsp.data.deleted >= 1) {
-						showToast('Succesfully deleted ' + rsp.data.deleted + ' item(s)');
-					} else {
-						showError({
-							Error: 'No items were deleted'
-						});
-					}
-				}, function(err) {
-					showError(err);
-				});
-		}, function() {});
-	};
+              function typeToHtml(type) {
+                switch (type) {
+                case ('int64'):
+                case ('integer'):
+                case ('decimal'):
+                  type = 'number';
+                  break;
+                case ('logical'):
+                  type = 'checkbox';
+                  break;
+                case ('date'):
+                  type = 'date';
+                  break;
+                default:
+                  type = 'text';
+                  break;
+                }
+                return type;
+              }
 
-	function showToast(content) {
-		$mdToast.show(
-			$mdToast.simple()
-			.content(content)
-			.hideDelay(3000)
-		);
-	}
-}]);
+              function getTableCount(callback) {
+                $http.get(
+                    restRoute + $scope.selectedDbs + '/' + $scope.selectedTbl
+                        + '/count').then(function(count) {
+                  $scope.explorerOpt.total = count.data.num;
+                  callback();
+                }, function(err) {
+                  showError(err);
+                });
+              }
+
+              function getTableData() {
+
+                var filter = {
+                  limit : $scope.explorerOpt.limit,
+                  offset : $scope.explorerOpt.limit
+                      * ($scope.explorerOpt.page - 1) + 1
+                };
+                var query = '/?filter=' + JSON.stringify(filter);
+                $http.get(
+                    restRoute + $scope.selectedDbs + '/' + $scope.selectedTbl
+                        + query).then(function(tableData) {
+                  $scope.explorerOpt.data = tableData.data;
+                  $scope.explorerOpt.header = tableData.data[0];
+                  getTableTypes();
+                }, function(err) {
+                  if (err.status !== 404)
+                    showError(err);
+                });
+              }
+
+              $scope.insertAction = function() {
+                var s = $scope.$new();
+                s.tblFields = $scope.tblFields;
+                s.selectedDbs = $scope.selectedDbs;
+                s.selectedTbl = $scope.selectedTbl;
+                $mdDialog.show({
+                  controller : 'insertCtrl',
+                  scope : s,
+                  templateUrl : 'components/crudCmp/view/modals/mInsert.html'
+                }).then(function() {
+                  $scope.loadExplorer();
+                }, function() {
+                });
+              };
+
+              function getRowidPath() {
+                var pk = [];
+
+                for ( var key in $scope.indexFields) {
+                  if ($scope.indexFields[key].primary
+                      && $scope.indexFields[key].unique)
+                    pk[$scope.indexFields[key].pos - 1] = $scope.explorerOpt.selected[key];
+                }
+
+                if (pk.length === 0) {
+                  pk = [ 'rowid', $scope.explorerOpt.selected.rowid ];
+                }
+
+                return pk.join('/');
+              }
+
+              function getRowData() {
+                var row = {};
+
+                for ( var key in $scope.explorerOpt.selected) {
+                  if (key !== 'rowid')
+                    row[key] = $scope.explorerOpt.row[key];
+                }
+
+                return row;
+              }
+
+              $scope.updateAction = function() {
+                if ($scope.explorerOpt.selected) {
+                  $http.put(
+                      restRoute + $scope.selectedDbs + '/' + $scope.selectedTbl
+                          + '/' + getRowidPath(), getRowData()).then(
+                      function(rsp) {
+                        showToast('Succesfully updated.');
+                        $scope.loadExplorer();
+                      }, function(err) {
+                        showError(err);
+                      });
+                }
+              };
+
+              $scope.deleteAction = function() {
+                if ($scope.explorerOpt.selected) {
+                  var confirm = $mdDialog.confirm().title('Delete').content(
+                      'Are you sure you want to delete these '
+                          + $scope.explorerOpt.selected.length + ' items')
+                      .ariaLabel('Delete').ok('Yes').cancel('No');
+                  $mdDialog.show(confirm).then(
+                      function() {
+                        $http['delete'](
+                            restRoute + $scope.selectedDbs + '/'
+                                + $scope.selectedTbl + '/' + getRowidPath())
+                            .then(function(rsp) {
+                              showToast('Succesfully deleted.');
+                              $scope.loadExplorer();
+                            }, function(err) {
+                              showError(err);
+                            });
+                      });
+                }
+              };
+
+              function showToast(content) {
+                $mdToast.show($mdToast.simple().content(content)
+                    .hideDelay(3000));
+              }
+            } ]);

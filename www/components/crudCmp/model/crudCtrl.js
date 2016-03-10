@@ -320,8 +320,7 @@ app
               $scope.deleteAction = function() {
                 if ($scope.explorerOpt.selected) {
                   var confirm = $mdDialog.confirm().title('Delete').content(
-                      'Are you sure you want to delete these '
-                          + $scope.explorerOpt.selected.length + ' items')
+                      'Are you sure you want to delete the record.')
                       .ariaLabel('Delete').ok('Yes').cancel('No');
                   $mdDialog.show(confirm).then(
                       function() {

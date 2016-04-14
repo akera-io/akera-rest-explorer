@@ -5,7 +5,7 @@
     "email": "liviu.mihaianu@acorn.ro"
   },
   "homepage": "http://akera.io",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Akera-web REST Explorer is the web-interface for REST module.",
   "license": {
     "type": "MIT",
@@ -19,12 +19,8 @@
     "node": ">= 0.10.0"
   },
   "main": "index.js",
-  "dependencies": {
-    "bower": "latest"
-  },
   "scripts": {
-    "prepublish":"grunt",
-    "postinstall":"node_modules/bower/bin/bower install"
+    "prepublish":"grunt"
   },
   "devDependencies": {
     "grunt": "~0.4.5",

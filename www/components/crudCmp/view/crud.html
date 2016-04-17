@@ -10,8 +10,7 @@
 		<li ng-repeat="db in dbs" ui-tree-node>
 			<div ui-tree-handle ng-click="loadTables(this)"
 				class="md-button md-button-left">
-				<i
-					ng-class="collapsed ? 'fa fa-arrow-circle-o-up': 'fa fa-arrow-circle-right'"></i>
+				<i ng-class="collapsed ? 'fa fa-arrow-circle-o-up': 'fa fa-arrow-circle-right'"></i>
 				<label> {{db.title}}</label>
 			</div>
 			<ol ui-tree-nodes="" ng-model="db.tables" ng-show="collapsed">

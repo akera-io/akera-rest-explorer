@@ -88,6 +88,7 @@ app
                   if (tFld.title === tblName) {
                     $scope.tblFields = tFld.fields;
                     $scope.selectedTbl = tblName;
+                    $scope.$parent.isTreeOpen = false;
                     return;
                   }
                 }
@@ -102,6 +103,7 @@ app
                         $scope.selectedTbl = tblName;
                         $scope.tblFields = fields.data;
                         tblFields.push(tblFld);
+                        $scope.$parent.isTreeOpen = false;
                       });
                     }, function(err) {
                       showError(err);

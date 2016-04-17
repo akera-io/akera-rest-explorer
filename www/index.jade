@@ -1,7 +1,7 @@
 doctype html
 html(ng-app='akeraRest')
   head
-    title Akera RestExplorer
+    title akera.io Rest Explorer
     script.
       broker = '#{broker}'
       restRoute = '#{restRoute}'
@@ -18,7 +18,7 @@ html(ng-app='akeraRest')
       .md-toolbar-tools
         md-button.md-icon-button(ng-click="toggleSidenav()")
           md-icon(aria-label='Menu', md-svg-icon='img/menu.svg')
-        h1 Akera RestExplorer [#{broker}]
+        h1 Rest Explorer [#{broker}]
     ui-view(id='mainBody', layout='row')
     script(type='text/javascript', src='resources/jquery/dist/jquery.js')
     script(type='text/javascript', src='resources/angular/angular.js')

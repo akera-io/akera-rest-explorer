@@ -39,6 +39,7 @@ module.exports = function(grunt) {
         unused: true,
         boss: true,
         eqnull: true,
+        reporterOutput: "",
         globals: {}
       },
       akeraCrud:{

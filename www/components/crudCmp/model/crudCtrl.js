@@ -33,7 +33,7 @@ app
               };
 
               function loadDatabases() {
-                $http.get(restRoute + 'meta').then(function(databases) {
+                $http.get(restRoute + 'metadata').then(function(databases) {
                   var dbArr = [];
                   for ( var key in databases.data) {
                     dbArr.push({
@@ -52,15 +52,17 @@ app
               $scope.loadTables = function(node) {
                 var db = node.$modelValue;
                 $scope.selectedTab = 0;
-                if (db.tables.length === 0) {
+                
+                if (!db.tables || db.tables.length === 0) {
                   loadTables(db, node);
                 } else {
+                  $scope.selectedDbs = db.title;
                   node.toggle();
                 }
               };
 
               function loadTables(db, node) {
-                $http.get(restRoute + 'meta/' + db.title).then(
+                $http.get(restRoute + 'metadata/' + db.title).then(
                     function(tables) {
                       var tblArr = [];
                       for (var i = 0; i < tables.data.length; i++) {
@@ -93,9 +95,16 @@ app
                   }
                 }
                 $http.get(
-                    restRoute + 'meta/' + $scope.selectedDbs + '/' + tblName)
+                    restRoute + 'metadata/' + $scope.selectedDbs + '/' + tblName)
                     .then(function(fields) {
                       getTableIdx(tblName, function() {
+                        fields.data = Object.keys(fields.data).map(function(fieldName) {
+                          var field = fields.data[fieldName];
+                          field.name = fieldName;
+                          
+                          return field;
+                        });
+                        
                         var tblFld = {
                           title : tblName,
                           fields : fields.data
@@ -113,7 +122,7 @@ app
               function getTableIdx(tblName, callback) {
                 $http
                     .get(
-                        restRoute + 'meta/' + $scope.selectedDbs + '/'
+                        restRoute + 'metadata/' + $scope.selectedDbs + '/'
                             + tblName + '/indexes')
                     .then(
                         function(indexes) {
@@ -236,7 +245,7 @@ app
                 $http.get(
                     restRoute + $scope.selectedDbs + '/' + $scope.selectedTbl
                         + '/count').then(function(count) {
-                  $scope.explorerOpt.total = count.data.num;
+                  $scope.explorerOpt.total = count.data.count;
                   callback();
                 }, function(err) {
                   showError(err);
